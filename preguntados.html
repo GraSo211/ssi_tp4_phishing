@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preguntados de Phishing · Concientización Corporativa</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #f0f6fc;
+  --text-muted: #8b949e;
+  --primary: #58a6ff;
+  --success: #3fb950;
+  --error: #f85149;
+  --warning: #d29922;
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+  --g1: #ff6b6b;
+  --g2: #4ecdc4;
+  --g3: #ffe66d;
+  --g4: #95e1d3;
+  --g5: #f38181;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+body { display: flex; justify-content: center; align-items: center; }
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; flex-direction: column; height: 100%; width: 100%; }
+.screen.active { display: flex; }
+
+/* ===== START SCREEN ===== */
+#screen-start {
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse at center, #161b22 0%, #0d1117 100%);
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.start-logo {
+  font-size: 4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.start-sub {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.start-pick-label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.start-groups {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.start-group-btn {
+  padding: 1.2rem 2.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border: 3px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 140px;
+}
+
+.start-group-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.start-group-btn[data-color="0"]:hover { border-color: var(--g1); box-shadow: 0 8px 30px rgba(255,107,107,0.3); }
+.start-group-btn[data-color="1"]:hover { border-color: var(--g2); box-shadow: 0 8px 30px rgba(78,205,196,0.3); }
+.start-group-btn[data-color="2"]:hover { border-color: var(--g3); box-shadow: 0 8px 30px rgba(255,230,109,0.3); }
+.start-group-btn[data-color="3"]:hover { border-color: var(--g4); box-shadow: 0 8px 30px rgba(149,225,211,0.3); }
+.start-group-btn[data-color="4"]:hover { border-color: var(--g5); box-shadow: 0 8px 30px rgba(243,129,129,0.3); }
+
+/* ===== SCOREBOARD ===== */
+#scoreboard {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  padding: 0.6rem 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 10;
+}
+
+.team-score {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.04);
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  min-width: 120px;
+  cursor: default;
+  position: relative;
+}
+
+.team-score.active-turn {
+  border-color: var(--primary);
+  background: rgba(88,166,255,0.1);
+  box-shadow: 0 0 20px rgba(88,166,255,0.15);
+}
+
+.team-score.steal-eligible {
+  cursor: pointer;
+  animation: pulse-steal 1s infinite;
+  border-color: var(--warning);
+}
+
+.team-score.steal-eligible:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 30px rgba(210,153,34,0.3);
+}
+
+@keyframes pulse-steal {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(210,153,34,0.3); }
+  50% { box-shadow: 0 0 20px 8px rgba(210,153,34,0.15); }
+}
+
+.team-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.team-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.team-pts {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-left: auto;
+  min-width: 28px;
+  text-align: right;
+  transition: transform 0.3s;
+}
+
+.team-pts.pop { animation: pop-score 0.5s ease; }
+
+@keyframes pop-score {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+
+/* ===== GAME CONTENT ===== */
+#game-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 2rem;
+  gap: 1.2rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ===== QUESTION VIEW ===== */
+#question-view {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.q-number {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.q-team-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.06);
+}
+
+.q-team-badge.steal-badge { border: 2px solid var(--warning); }
+
+.q-text {
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 1rem 0;
+}
+
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.q-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text);
+}
+
+.q-option:hover:not(.disabled) {
+  border-color: var(--primary);
+  background: rgba(88,166,255,0.08);
+  transform: translateX(6px);
+}
+
+.q-option .opt-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.q-option.correct {
+  border-color: var(--success) !important;
+  background: rgba(63,185,80,0.15) !important;
+}
+
+.q-option.correct .opt-letter { background: var(--success); color: #000; }
+
+.q-option.wrong {
+  border-color: var(--error) !important;
+  background: rgba(248,81,73,0.15) !important;
+}
+
+.q-option.wrong .opt-letter { background: var(--error); color: #fff; }
+
+.q-option.disabled { cursor: default; opacity: 0.7; }
+
+/* ===== TIMER ===== */
+#timer-container {
+  width: 100%;
+  max-width: 900px;
+  flex-shrink: 0;
+  padding: 0 2rem 1rem;
+}
+
+.timer-bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.1s linear;
+  width: 100%;
+}
+
+.timer-text {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+}
+
+/* ===== EXPLANATION VIEW ===== */
+#explanation-view {
+  width: 100%;
+  max-width: 900px;
+  display: none;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+#explanation-view.visible { display: flex; }
+
+.exp-icon {
+  font-size: 3rem;
+  text-align: center;
+}
+
+.exp-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.exp-title.correct-title { color: var(--success); }
+.exp-title.wrong-title { color: var(--error); }
+
+.exp-correct-answer {
+  font-size: 1.2rem;
+  color: var(--success);
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(63,185,80,0.08);
+  border-radius: var(--radius-sm);
+}
+
+.exp-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--text);
+  padding: 1rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary);
+}
+
+.exp-question-ref {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.btn-continuar {
+  align-self: center;
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.btn-continuar:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(88,166,255,0.3); }
+
+.btn-steal-robbery {
+  align-self: center;
+  padding: 1.2rem 3.5rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--warning), #f0883e);
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: pulse-steal-btn 1.5s infinite;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 0.5rem;
+}
+
+.btn-steal-robbery:hover { transform: scale(1.06); box-shadow: 0 4px 30px rgba(210,153,34,0.4); }
+
+@keyframes pulse-steal-btn {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(210,153,34,0.4); }
+  50% { transform: scale(1.04); box-shadow: 0 0 30px 10px rgba(210,153,34,0.2); }
+}
+
+.steal-skip-link {
+  align-self: center;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0.4rem 0.6rem;
+}
+
+.steal-skip-link:hover { color: var(--text); }
+
+.steal-hint {
+  font-size: 1rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ===== STEAL SELECT VIEW ===== */
+#steal-select-view {
+  width: 100%;
+  max-width: 900px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+#steal-select-view.visible { display: flex; }
+
+.steal-select-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--warning);
+  text-align: center;
+}
+
+.steal-select-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.steal-select-group {
+  padding: 1.5rem 2.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border: 3px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 140px;
+  text-align: center;
+}
+
+.steal-select-group:hover {
+  transform: translateY(-4px) scale(1.06);
+}
+
+.steal-select-group[data-color="0"]:hover { border-color: var(--g1); box-shadow: 0 0 30px rgba(255,107,107,0.3); }
+.steal-select-group[data-color="1"]:hover { border-color: var(--g2); box-shadow: 0 0 30px rgba(78,205,196,0.3); }
+.steal-select-group[data-color="2"]:hover { border-color: var(--g3); box-shadow: 0 0 30px rgba(255,230,109,0.3); }
+.steal-select-group[data-color="3"]:hover { border-color: var(--g4); box-shadow: 0 0 30px rgba(149,225,211,0.3); }
+.steal-select-group[data-color="4"]:hover { border-color: var(--g5); box-shadow: 0 0 30px rgba(243,129,129,0.3); }
+
+.btn-cancelar-steal {
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancelar-steal:hover { border-color: var(--text-muted); color: var(--text); }
+
+/* ===== PODIUM SCREEN ===== */
+#screen-podium {
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse at center, #161b22 0%, #0d1117 100%);
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.podium-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.podium-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+  min-width: 160px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.podium-item .place-icon { font-size: 2.5rem; }
+.podium-item .place-name { font-size: 1.2rem; font-weight: 700; }
+.podium-item .place-pts { font-size: 2rem; font-weight: 800; }
+
+.podium-1st {
+  background: linear-gradient(180deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+  border: 2px solid var(--gold);
+  min-height: 220px;
+  order: 2;
+}
+.podium-1st .place-pts { color: var(--gold); }
+
+.podium-2nd {
+  background: linear-gradient(180deg, rgba(192,192,192,0.12), rgba(192,192,192,0.04));
+  border: 2px solid var(--silver);
+  min-height: 170px;
+  order: 1;
+}
+.podium-2nd .place-pts { color: var(--silver); }
+
+.podium-3rd {
+  background: linear-gradient(180deg, rgba(205,127,50,0.12), rgba(205,127,50,0.04));
+  border: 2px solid var(--bronze);
+  min-height: 130px;
+  order: 3;
+}
+.podium-3rd .place-pts { color: var(--bronze); }
+
+.podium-rest {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.podium-rest-item {
+  text-align: center;
+  padding: 0.5rem 1rem;
+}
+.podium-rest-item .rest-name { font-size: 1rem; color: var(--text-muted); }
+.podium-rest-item .rest-pts { font-size: 1.5rem; font-weight: 700; }
+
+.btn-reiniciar {
+  margin-top: 1rem;
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reiniciar:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(88,166,255,0.3); }
+
+/* ===== CONFETTI ===== */
+.confetti-piece {
+  position: fixed;
+  top: -20px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: confetti-fall linear forwards;
+  border-radius: 2px;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .start-logo { font-size: 2.5rem; }
+  .q-text { font-size: 1.3rem; }
+  .q-option { font-size: 1rem; padding: 0.8rem 1rem; }
+  .q-option .opt-letter { width: 32px; height: 32px; font-size: 0.9rem; }
+  .team-score { min-width: 80px; padding: 0.3rem 0.6rem; }
+  .team-name { font-size: 0.75rem; }
+  .team-pts { font-size: 1rem; min-width: 20px; }
+  #game-content { padding: 1rem; }
+  .podium-item { min-width: 120px; padding: 1rem; }
+  .podium-1st { min-height: 180px; }
+  .podium-2nd { min-height: 140px; }
+  .podium-3rd { min-height: 110px; }
+  .btn-steal { padding: 1rem 2rem; font-size: 1.2rem; }
+  .steal-select-group { padding: 1rem 1.5rem; font-size: 1.1rem; min-width: 100px; }
+  .start-group-btn { padding: 1rem 1.5rem; font-size: 1.1rem; min-width: 100px; }
+  .exp-text { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  #scoreboard { gap: 0.3rem; padding: 0.3rem 0.5rem; }
+  .team-score { min-width: 60px; padding: 0.2rem 0.4rem; gap: 0.3rem; }
+  .team-dot { width: 10px; height: 10px; }
+  .team-name { font-size: 0.65rem; }
+  .team-pts { font-size: 0.85rem; min-width: 16px; }
+  .q-text { font-size: 1.1rem; }
+  .q-option { font-size: 0.9rem; padding: 0.6rem 0.8rem; }
+  .btn-steal { padding: 0.8rem 1.5rem; font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===== START SCREEN ===== -->
+  <div id="screen-start" class="screen active">
+    <div class="start-logo">PREGUNTADOS<br>DE PHISHING</div>
+    <div class="start-sub">
+      Campaña de Concientización Corporativa &middot; 5 Grupos &middot; 14 Preguntas
+    </div>
+    <div class="start-pick-label">Seleccioná el grupo que empieza:</div>
+    <div class="start-groups" id="startGroups"></div>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div id="screen-game" class="screen">
+    <div id="scoreboard"></div>
+    <div id="game-content">
+      <!-- Question View -->
+      <div id="question-view">
+        <div class="q-header">
+          <span class="q-number" id="qNumber"></span>
+          <span class="q-team-badge" id="qTeamBadge"></span>
+        </div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+      </div>
+
+      <!-- Explanation View (also serves as steal prompt) -->
+      <div id="explanation-view">
+        <div class="exp-icon" id="expIcon"></div>
+        <div class="exp-title" id="expTitle"></div>
+        <div class="exp-correct-answer" id="expCorrectAnswer"></div>
+        <div class="exp-text" id="expText"></div>
+        <div class="exp-question-ref" id="expQuestionRef"></div>
+        <button class="btn-continuar" id="btnContinuar">Continuar</button>
+        <button class="btn-steal-robbery" id="btnStealRobbery" style="display:none">¡Robar Puntos / Rebote!</button>
+        <button class="steal-skip-link" id="btnSkipSteal" style="display:none">Continuar sin rebote →</button>
+        <div class="steal-hint" id="expStealHint" style="display:none"></div>
+      </div>
+
+      <!-- Steal Select View -->
+      <div id="steal-select-view">
+        <div class="steal-select-title">¿Qué grupo levantó la mano primero?</div>
+        <div class="steal-select-grid" id="stealSelectGrid"></div>
+        <button class="btn-cancelar-steal" id="btnCancelSteal">Cancelar</button>
+      </div>
+    </div>
+    <div id="timer-container">
+      <div class="timer-bar-bg">
+        <div class="timer-bar-fill" id="timerBarFill"></div>
+      </div>
+      <div class="timer-text" id="timerText">30s</div>
+    </div>
+  </div>
+
+  <!-- ===== PODIUM SCREEN ===== -->
+  <div id="screen-podium" class="screen">
+    <div class="podium-title">🏆 ¡Juego Terminado! 🏆</div>
+    <div class="podium-container" id="podiumContainer"></div>
+    <div class="podium-rest" id="podiumRest"></div>
+    <button class="btn-reiniciar" id="btnReiniciar">🔄 Jugar de nuevo</button>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const PREGUNTAS = [
+  {
+    id: 1,
+    pregunta: "¿Cuál es la definición más precisa de Phishing en el ámbito de la seguridad de la información?",
+    opciones: [
+      "Un ataque técnico masivo que aprovecha vulnerabilidades en el código de un sistema operativo.",
+      "Una técnica de ingeniería social que utiliza el engaño para manipular a las personas y lograr que revelen información confidencial o ejecuten acciones dañinas.",
+      "Un tipo de virus informático que se propaga exclusivamente a través de redes Wi-Fi públicas."
+    ],
+    correcta: 1,
+    explicacion: "¡Correcto! El phishing es principalmente ingeniería social: ataca al eslabón humano mediante el engaño y la manipulación psicológica, no explotando un fallo del software."
+  },
+  {
+    id: 2,
+    pregunta: "¿Cuál es el principal canal o medio donde se producen la mayoría de los ataques de phishing corporativos?",
+    opciones: [
+      "El correo electrónico institucional.",
+      "Mensajes de texto (SMS) al teléfono corporativo.",
+      "Anuncios emergentes (Pop-ups) en navegadores web."
+    ],
+    correcta: 0,
+    explicacion: "¡Exacto! El correo electrónico sigue siendo el vector de entrada número uno en las organizaciones debido al alto volumen de mensajes que se gestionan diariamente."
+  },
+  {
+    id: 3,
+    pregunta: "Cuando un ataque de phishing no es masivo, sino que está dirigido específicamente a una persona o empresa en particular (como los ataques simulados a nuestra agencia), ¿cómo se denomina?",
+    opciones: [
+      "Smishing.",
+      "Spear Phishing.",
+      "Whaling (Phishing de ballenas)."
+    ],
+    correcta: 1,
+    explicacion: "¡Perfecto! El 'Spear Phishing' (phishing de lanza) es un ataque dirigido y personalizado. El atacante investiga a la víctima (roles, herramientas que usa) para que el engaño sea mucho más creíble."
+  },
+  {
+    id: 4,
+    pregunta: "¿En qué consiste la técnica de phishing conocida como 'Smishing'?",
+    opciones: [
+      "Ataques de suplantación de identidad perpetrados a través de mensajes de texto (SMS) o aplicaciones de mensajería móvil.",
+      "Llamadas telefónicas fraudulentas donde el atacante simula ser un operador técnico.",
+      "Correos electrónicos falsos que contienen imágenes maliciosas adjuntas."
+    ],
+    correcta: 0,
+    explicacion: "¡Así es! El término viene de la combinación de 'SMS' y 'Phishing'. Es una de las formas más normales de fraude para robar tokens de doble factor o accesos rápidos."
+  },
+  {
+    id: 5,
+    pregunta: "¿Qué es el 'Vishing' en el contexto de las amenazas de seguridad?",
+    opciones: [
+      "Phishing basado en videos manipulados con Inteligencia Artificial (Deepfakes).",
+      "Phishing de voz, ejecutado mediante llamadas telefónicas fraudulentas para suplantar la identidad de un tercero (ej. soporte de un banco o TI).",
+      "Un virus que bloquea la pantalla de la computadora."
+    ],
+    correcta: 1,
+    explicacion: "¡Excelente! 'Vishing' viene de 'Voice' + 'Phishing'. El atacante usa la voz y la presión verbal directa para conseguir datos confidenciales en tiempo real."
+  },
+  {
+    id: 6,
+    pregunta: "¿Cuál es el objetivo principal que persiguen los atacantes al lanzar una campaña de phishing a los empleados de una organización?",
+    opciones: [
+      "Romper físicamente el hardware o los servidores de la empresa.",
+      "Robar credenciales de acceso, datos financieros, propiedad intelectual o instalar malware en la red corporativa.",
+      "Mejorar el tráfico web del sitio del atacante de forma orgánica."
+    ],
+    correcta: 1,
+    explicacion: "¡Correcto! El phishing busca el acceso inicial. Una vez que obtienen tus credenciales o infectan tu equipo, pueden escalar privilegios y comprometer a toda la empresa."
+  },
+  {
+    id: 7,
+    pregunta: "¿Qué elemento fundamental de un correo electrónico NUNCA se debe usar como prueba absoluta de que el mensaje es seguro o legítimo?",
+    opciones: [
+      "El nombre visible del remitente (Display Name).",
+      "La fecha y la hora en la que fue enviado.",
+      "El logotipo o la estética corporativa que incluye el cuerpo del mail."
+    ],
+    correcta: 0,
+    explicacion: "¡Exacto! El nombre que se muestra a primera vista es ultra fácil de falsificar (spoofing). Un mail puede decir 'Soporte Canva' en el nombre visible, pero la dirección real de correo de fondo puede ser cualquier dominio fraudulento."
+  },
+  {
+    id: 8,
+    pregunta: "En seguridad de la información, ¿qué significa el término 'Pretexting' asociado al phishing?",
+    opciones: [
+      "La creación de una historia o escenario falso (el pretexto) para que la víctima confíe y muerda el anzuelo.",
+      "El análisis de texto automatizado que hace el antivirus antes de abrir un mail.",
+      "Actualizar el sistema operativo antes de un ataque."
+    ],
+    correcta: 0,
+    explicacion: "¡Perfecto! El pretexto es la mentira elaborada. Decir que 'tu almacenamiento está lleno' o que 'se suspendió la cuenta de Meta' son pretextos diseñados para justificar la acción urgente que te piden."
+  },
+  {
+    id: 9,
+    pregunta: "Si recibís un correo legítimo de un compañero de trabajo de la empresa, con su dirección correcta, pero el mensaje te pide de forma extraña y urgente que hagas clic en un enlace inusual, ¿qué podría estar pasando?",
+    opciones: [
+      "Es imposible que sea phishing si la dirección de tu compañero es la correcta.",
+      "La cuenta de tu compañero pudo haber sido comprometida previamente por un atacante (Account Takeover) para propagar el phishing internamente.",
+      "Es un error del servidor de correos de la oficina."
+    ],
+    correcta: 1,
+    explicacion: "¡Exacto! El phishing interno es de los más peligrosos. Si un atacante toma el control de una cuenta interna real, la usará para atacar a los demás compañeros aprovechando la confianza existente."
+  },
+  {
+    id: 10,
+    pregunta: "¿Por qué los filtros de seguridad de correo (Antispam/Antiphishing) corporativos no pueden detener el 100% de los ataques?",
+    opciones: [
+      "Porque los atacantes modifican constantemente sus técnicas, usan dominios nuevos y emplean psicología que los filtros técnicos no siempre pueden interpretar.",
+      "Porque los filtros solo funcionan durante el horario de oficina.",
+      "Porque los filtros técnicos están diseñados para bloquear solo virus, no correos."
+    ],
+    correcta: 0,
+    explicacion: "¡Excelente! La tecnología es una barrera clave, pero los atacantes mutan los pretextos y usan la ingeniería social para saltársela. Por eso, el empleado entrenado es la última y más importante línea de defensa."
+  },
+  {
+    id: 11,
+    pregunta: "Te llega un correo urgente de 'support@meta-business-security.com' que dice: 'Tu cuenta publicitaria será suspendida en 2 horas'. El cliente tiene una campaña crítica corriendo hoy. ¿Qué técnica de phishing se está aplicando acá?",
+    opciones: [
+      "Malware: El correo intenta instalar un virus silencioso.",
+      "Urgencia Artificial: Se crea pánico para que actúes rápido y no mires que el dominio remitente es falso.",
+      "Ransomware: Te están pidiendo plata para no borrar las campañas."
+    ],
+    correcta: 1,
+    explicacion: "¡Exacto! Los atacantes manipulan tus emociones (el miedo a perder el laburo o suspender campañas) para que actúes bajo presión sin verificar el remitente."
+  },
+  {
+    id: 12,
+    pregunta: "Recibís una notificación para revisar un tablero de Miro. Al mirar el remitente, el correo viene de 'notifications@mir0.com' (con un cero en lugar de una O). ¿Cómo se llama esta técnica?",
+    opciones: [
+      "Phishing Telefónico (Vishing).",
+      "Spear Phishing.",
+      "Typosquatting: Cambiar una letra o usar un número visualmente similar para que parezca legítimo."
+    ],
+    correcta: 2,
+    explicacion: "¡Perfecto! El Typosquatting busca engañar a tu cerebro aprovechando la lectura rápida. ¡Siempre mirá en detalle los dominios!"
+  },
+  {
+    id: 13,
+    pregunta: "Te llega un mail general que dice: 'Actualización obligatoria de la cartilla de Swiss Medical. Descargue el archivo adjunto Nuevos_Beneficios_2026.pdf.exe'. ¿Cuál es la señal de alerta roja?",
+    opciones: [
+      "Que el archivo pesa mucho.",
+      "La doble extensión (.pdf.exe): El archivo se disfraza de PDF pero en realidad es un ejecutable malicioso.",
+      "Que Swiss Medical no manda correos los días de semana."
+    ],
+    correcta: 1,
+    explicacion: "¡Excelente! Los archivos ejecutables (.exe) ocultos tras falsas extensiones son letales. Nunca descargues ni ejecutes archivos sospechosos."
+  },
+  {
+    id: 14,
+    pregunta: "Sospechás de un correo porque el remitente parece alterado, pero tenés miedo de equivocarte y hacerle perder tiempo al equipo de Soporte IT. ¿Qué es lo correcto?",
+    opciones: [
+      "Borrar el mail y no decirle a nadie para no generar problemas.",
+      "Reenviarlo a tus compañeros de equipo para ver si a ellos también les llegó.",
+      "Reportarlo inmediatamente a Soporte IT. Es mejor un reporte falso positivo que una intrusión real."
+    ],
+    correcta: 2,
+    explicacion: "¡Así se hace! La cultura de reporte temprano es nuestro escudo principal. IT prefiere verificar mil mails falsos antes que mitigar un ataque real."
+  }
+];
+
+const TEAM_NAMES = ['Grupo 1', 'Grupo 2', 'Grupo 3', 'Grupo 4', 'Grupo 5'];
+const TEAM_COLORS = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3', '#f38181'];
+const LETTERS = ['A', 'B', 'C'];
+const TIMER_DURATION = 30;
+
+// ============================================================
+// STATE
+// ============================================================
+const G = {
+  screen: 'start',        // 'start' | 'game' | 'podium'
+  sub: null,               // 'question' | 'explanation' | 'steal_select'
+  questionIndex: 0,
+  currentGroup: 0,
+  scores: [0, 0, 0, 0, 0],
+  isStealRound: false,
+  stealEligible: [],       // indices of groups that can still steal
+  stealingGroup: -1,
+  explanationMode: '',   // 'correct' | 'wrong_steal_available' | 'wrong_steal_exhausted'
+  lastSelectedOption: -1,
+  timerId: null,
+  timeRemaining: TIMER_DURATION,
+  answerLocked: false,
+  questionCount: PREGUNTAS.length,
+};
+
+// ============================================================
+// DOM REFS
+// ============================================================
+const $ = (id) => document.getElementById(id);
+const dom = {
+  screenStart: $('screen-start'),
+  screenGame: $('screen-game'),
+  screenPodium: $('screen-podium'),
+  startGroups: $('startGroups'),
+  scoreboard: $('scoreboard'),
+  questionView: $('question-view'),
+  qNumber: $('qNumber'),
+  qTeamBadge: $('qTeamBadge'),
+  qText: $('qText'),
+  qOptions: $('qOptions'),
+  explanationView: $('explanation-view'),
+  expIcon: $('expIcon'),
+  expTitle: $('expTitle'),
+  expCorrectAnswer: $('expCorrectAnswer'),
+  expText: $('expText'),
+  expQuestionRef: $('expQuestionRef'),
+  btnContinuar: $('btnContinuar'),
+  btnStealRobbery: $('btnStealRobbery'),
+  btnSkipSteal: $('btnSkipSteal'),
+  expStealHint: $('expStealHint'),
+  stealSelectView: $('steal-select-view'),
+  stealSelectGrid: $('stealSelectGrid'),
+  btnCancelSteal: $('btnCancelSteal'),
+  timerBarFill: $('timerBarFill'),
+  timerText: $('timerText'),
+  timerContainer: $('timer-container'),
+  podiumContainer: $('podiumContainer'),
+  podiumRest: $('podiumRest'),
+  btnReiniciar: $('btnReiniciar'),
+};
+
+// ============================================================
+// SOUND (Web Audio API)
+// ============================================================
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playCorrect() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    [523, 659, 784].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, now + i * 0.12);
+      g.gain.setValueAtTime(0.25, now + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.4);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(now + i * 0.12);
+      o.stop(now + i * 0.12 + 0.4);
+    });
+  } catch(e) {}
+}
+
+function playWrong() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(200, now);
+    o.frequency.linearRampToValueAtTime(100, now + 0.3);
+    g.gain.setValueAtTime(0.2, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(now);
+    o.stop(now + 0.35);
+  } catch(e) {}
+}
+
+function playSteal() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(440, now);
+    o.frequency.setValueAtTime(554, now + 0.15);
+    o.frequency.setValueAtTime(659, now + 0.3);
+    g.gain.setValueAtTime(0.12, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(now);
+    o.stop(now + 0.5);
+  } catch(e) {}
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti(count = 100) {
+  const colors = ['#ff6b6b','#4ecdc4','#ffe66d','#95e1d3','#f38181','#58a6ff','#ffd700','#ff8b94','#3fb950','#d29922'];
+  const container = document.body;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = 4 + Math.random() * 10;
+    el.style.cssText = [
+      `left:${Math.random() * 100}vw`,
+      `top:-${size}px`,
+      `width:${size}px`,
+      `height:${size * (0.4 + Math.random() * 0.6)}px`,
+      `background:${colors[Math.floor(Math.random() * colors.length)]}`,
+      `animation-duration:${2 + Math.random() * 3}s`,
+      `animation-delay:${Math.random() * 1.5}s`,
+      `border-radius:${Math.random() > 0.5 ? '50%' : '2px'}`,
+    ].join(';');
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getNextGroup(current) {
+  return (current + 1) % 5;
+}
+
+function getQuestion(qIndex) {
+  return PREGUNTAS[qIndex] || null;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function showScreen(name) {
+  dom.screenStart.classList.toggle('active', name === 'start');
+  dom.screenGame.classList.toggle('active', name === 'game');
+  dom.screenPodium.classList.toggle('active', name === 'podium');
+}
+
+function showSubView(sub) {
+  G.sub = sub;
+  dom.questionView.style.display = sub === 'question' ? 'flex' : 'none';
+  dom.explanationView.classList.toggle('visible', sub === 'explanation');
+  dom.stealSelectView.classList.toggle('visible', sub === 'steal_select');
+  dom.timerContainer.style.display = (sub === 'question') ? 'block' : 'none';
+}
+
+function renderScoreboard() {
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    const isActive = !G.isStealRound && G.sub === 'question' && i === G.currentGroup;
+    const isStealActive = G.isStealRound && G.sub === 'question' && i === G.stealingGroup;
+    const isEligible = G.sub === 'steal_select' && G.stealEligible.includes(i);
+    const cls = [
+      'team-score',
+      (isActive || isStealActive) ? 'active-turn' : '',
+      isEligible ? 'steal-eligible' : '',
+    ].filter(Boolean).join(' ');
+
+    html += `<div class="${cls}" data-group="${i}" style="${isEligible ? 'cursor:pointer' : ''}">
+      <span class="team-dot" style="background:${TEAM_COLORS[i]}"></span>
+      <span class="team-name">${TEAM_NAMES[i]}</span>
+      <span class="team-pts" id="pts-${i}">${G.scores[i]}</span>
+    </div>`;
+  }
+  dom.scoreboard.innerHTML = html;
+
+  if (G.sub === 'steal_select') {
+    dom.scoreboard.querySelectorAll('.steal-eligible').forEach(el => {
+      el.addEventListener('click', () => onStealSelectGroup(parseInt(el.dataset.group)));
+    });
+  }
+}
+
+function animateScore(groupIdx) {
+  const el = document.getElementById(`pts-${groupIdx}`);
+  if (el) {
+    el.textContent = G.scores[groupIdx];
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+  }
+}
+
+function renderStartScreen() {
+  let html = '';
+  for (let i = 0; i < 5; i++) {
+    html += `<button class="start-group-btn" data-color="${i}" data-group="${i}">
+      <span style="color:${TEAM_COLORS[i]}">●</span> ${TEAM_NAMES[i]}
+    </button>`;
+  }
+  dom.startGroups.innerHTML = html;
+  dom.startGroups.querySelectorAll('.start-group-btn').forEach(btn => {
+    btn.addEventListener('click', () => startGame(parseInt(btn.dataset.group)));
+  });
+}
+
+function renderQuestion() {
+  const q = getQuestion(G.questionIndex);
+  if (!q) return;
+
+  dom.qNumber.textContent = `Pregunta ${G.questionIndex + 1} de ${G.questionCount}`;
+
+  const groupIdx = G.isStealRound ? G.stealingGroup : G.currentGroup;
+  const badgeText = G.isStealRound
+    ? `⚡ ${TEAM_NAMES[groupIdx]} (Rebote)`
+    : `🎯 Responde: ${TEAM_NAMES[groupIdx]}`;
+  dom.qTeamBadge.textContent = badgeText;
+  dom.qTeamBadge.className = 'q-team-badge' + (G.isStealRound ? ' steal-badge' : '');
+
+  dom.qText.textContent = q.pregunta;
+
+  let optsHtml = '';
+  for (let i = 0; i < q.opciones.length; i++) {
+    optsHtml += `<div class="q-option" data-opt="${i}">
+      <span class="opt-letter">${LETTERS[i]}</span>
+      <span>${q.opciones[i]}</span>
+    </div>`;
+  }
+  dom.qOptions.innerHTML = optsHtml;
+
+  dom.qOptions.querySelectorAll('.q-option').forEach(el => {
+    el.addEventListener('click', () => onAnswerClick(parseInt(el.dataset.opt)));
+  });
+
+  G.answerLocked = false;
+  G.lastSelectedOption = -1;
+  startTimer();
+}
+
+function showExplanation(mode) {
+  G.explanationMode = mode;
+  const q = getQuestion(G.questionIndex);
+  if (!q) return;
+
+  const groupIdx = G.isStealRound ? G.stealingGroup : G.currentGroup;
+  const isCorrect = mode === 'correct';
+  const revealAnswer = mode === 'wrong_steal_exhausted' || isCorrect;
+  const hasSteal = mode === 'wrong_steal_available';
+
+  dom.expIcon.textContent = isCorrect ? '✅' : '❌';
+
+  if (isCorrect) {
+    dom.expTitle.textContent = `¡${TEAM_NAMES[groupIdx]} acertó!`;
+    dom.expTitle.className = 'exp-title correct-title';
+  } else if (mode === 'wrong_steal_exhausted') {
+    dom.expTitle.textContent = G.isStealRound
+      ? `¡${TEAM_NAMES[groupIdx]} falló! — nadie sumó el punto`
+      : 'Se acabaron los rebotes — nadie sumó el punto';
+    dom.expTitle.className = 'exp-title wrong-title';
+  } else {
+    dom.expTitle.textContent = `¡${TEAM_NAMES[groupIdx]} falló!`;
+    dom.expTitle.className = 'exp-title wrong-title';
+  }
+
+  // Correct answer row
+  if (revealAnswer) {
+    dom.expCorrectAnswer.style.display = 'block';
+    dom.expCorrectAnswer.textContent = isCorrect
+      ? `Opción ${LETTERS[q.correcta]}: ${q.opciones[q.correcta]}`
+      : `La respuesta correcta era: Opción ${LETTERS[q.correcta]}: ${q.opciones[q.correcta]}`;
+    if (!isCorrect) revealCorrectOption();
+  } else {
+    dom.expCorrectAnswer.style.display = 'none';
+  }
+
+  // Explanation text — hidden completely during steal
+  dom.expText.style.display = revealAnswer ? 'block' : 'none';
+  if (revealAnswer) {
+    dom.expText.textContent = q.explicacion;
+  }
+  dom.expQuestionRef.style.display = revealAnswer ? 'block' : 'none';
+  dom.expQuestionRef.textContent = `Pregunta ${G.questionIndex + 1}: ${q.pregunta}`;
+
+  // Buttons
+  dom.btnContinuar.style.display = (isCorrect || mode === 'wrong_steal_exhausted') ? 'block' : 'none';
+  dom.btnStealRobbery.style.display = hasSteal ? 'block' : 'none';
+  dom.btnSkipSteal.style.display = hasSteal ? 'block' : 'none';
+  dom.expStealHint.style.display = hasSteal ? 'block' : 'none';
+
+  if (hasSteal) {
+    dom.expStealHint.textContent = 'El grupo actual falló. ¿Algún otro grupo quiere intentar el rebote?';
+    if (!G.isStealRound) playSteal();
+  }
+
+  showSubView('explanation');
+  renderScoreboard();
+}
+
+function renderStealSelect() {
+  let html = '';
+  for (const i of G.stealEligible) {
+    html += `<div class="steal-select-group" data-color="${i}" data-group="${i}">
+      <span style="color:${TEAM_COLORS[i]};font-size:1.5rem;">●</span><br>
+      ${TEAM_NAMES[i]}
+    </div>`;
+  }
+  dom.stealSelectGrid.innerHTML = html;
+  dom.stealSelectGrid.querySelectorAll('.steal-select-group').forEach(el => {
+    el.addEventListener('click', () => onStealSelectGroup(parseInt(el.dataset.group)));
+  });
+}
+
+function renderPodium() {
+  const ranked = G.scores
+    .map((pts, idx) => ({ idx, name: TEAM_NAMES[idx], pts, color: TEAM_COLORS[idx] }))
+    .sort((a, b) => b.pts - a.pts);
+
+  const medals = ['🥇', '🥈', '🥉'];
+  const positions = ['podium-1st', 'podium-2nd', 'podium-3rd'];
+
+  let podiumHtml = '';
+  for (let p = 0; p < Math.min(3, ranked.length); p++) {
+    const t = ranked[p];
+    const ptsLabel = t.pts === 1 ? 'punto' : 'puntos';
+    podiumHtml += `<div class="podium-item ${positions[p]}">
+      <div class="place-icon">${medals[p]}</div>
+      <div class="place-name" style="color:${t.color}">${t.name}</div>
+      <div class="place-pts">${t.pts} ${ptsLabel}</div>
+    </div>`;
+  }
+  dom.podiumContainer.innerHTML = podiumHtml;
+
+  if (ranked.length > 3) {
+    let restHtml = '';
+    for (let p = 3; p < ranked.length; p++) {
+      const t = ranked[p];
+      const ptsLabel = t.pts === 1 ? 'punto' : 'puntos';
+      restHtml += `<div class="podium-rest-item">
+        <div class="rest-name" style="color:${t.color}">${t.name}</div>
+        <div class="rest-pts">${t.pts} ${ptsLabel}</div>
+      </div>`;
+    }
+    dom.podiumRest.innerHTML = restHtml;
+  } else {
+    dom.podiumRest.innerHTML = '';
+  }
+
+  launchConfetti(120);
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  stopTimer();
+  G.timeRemaining = TIMER_DURATION;
+  G.timerId = setInterval(() => {
+    G.timeRemaining -= 0.05;
+    if (G.timeRemaining <= 0) {
+      G.timeRemaining = 0;
+      stopTimer();
+      handleTimeout();
+    }
+    updateTimerDisplay();
+  }, 50);
+  updateTimerDisplay();
+}
+
+function stopTimer() {
+  if (G.timerId) {
+    clearInterval(G.timerId);
+    G.timerId = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const pct = (G.timeRemaining / TIMER_DURATION) * 100;
+  dom.timerBarFill.style.width = pct + '%';
+  dom.timerText.textContent = Math.ceil(G.timeRemaining) + 's';
+
+  if (pct > 50) {
+    dom.timerBarFill.style.background = 'var(--success)';
+  } else if (pct > 25) {
+    dom.timerBarFill.style.background = 'var(--warning)';
+  } else {
+    dom.timerBarFill.style.background = 'var(--error)';
+  }
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function startGame(firstGroup) {
+  G.currentGroup = firstGroup;
+  G.questionIndex = 0;
+  G.scores = [0, 0, 0, 0, 0];
+  G.isStealRound = false;
+  G.stealEligible = [];
+  G.stealingGroup = -1;
+
+  showScreen('game');
+  showSubView('question');
+  renderScoreboard();
+  renderQuestion();
+}
+
+function advanceToNextQuestion() {
+  G.questionIndex++;
+  G.isStealRound = false;
+  G.stealEligible = [];
+  G.stealingGroup = -1;
+
+  if (G.questionIndex >= G.questionCount) {
+    showSubView(null);
+    dom.timerContainer.style.display = 'none';
+    showScreen('podium');
+    renderPodium();
+    return;
+  }
+
+  G.currentGroup = getNextGroup(G.currentGroup);
+  showSubView('question');
+  renderScoreboard();
+  renderQuestion();
+}
+
+function handleCorrectAnswer(groupIdx) {
+  stopTimer();
+  G.scores[groupIdx]++;
+  G.answerLocked = true;
+
+  animateScore(groupIdx);
+  playCorrect();
+  showExplanation('correct');
+}
+
+function handleWrongAnswer() {
+  stopTimer();
+  G.answerLocked = true;
+
+  const groupIdx = G.isStealRound ? G.stealingGroup : G.currentGroup;
+
+  if (!G.isStealRound) {
+    G.stealEligible = [];
+    for (let i = 0; i < 5; i++) {
+      if (i !== G.currentGroup) G.stealEligible.push(i);
+    }
+    playWrong();
+    showExplanation('wrong_steal_available');
+  } else {
+    playWrong();
+    showExplanation('wrong_steal_exhausted');
+  }
+}
+
+function handleTimeout() {
+  if (G.answerLocked) return;
+  disableOptions();
+  handleWrongAnswer();
+}
+
+function disableOptions() {
+  dom.qOptions.querySelectorAll('.q-option').forEach(el => {
+    el.classList.add('disabled');
+  });
+}
+
+function highlightSelectedOption(selected, correct, revealCorrect) {
+  const opts = dom.qOptions.querySelectorAll('.q-option');
+  opts.forEach((el, i) => {
+    el.classList.add('disabled');
+    if (revealCorrect && i === correct) el.classList.add('correct');
+    if (i === selected && selected !== correct) el.classList.add('wrong');
+  });
+}
+
+function revealCorrectOption() {
+  const q = getQuestion(G.questionIndex);
+  if (!q) return;
+  const opts = dom.qOptions.querySelectorAll('.q-option');
+  opts.forEach((el, i) => {
+    if (i === q.correcta) el.classList.add('correct');
+  });
+}
+
+// ============================================================
+// EVENT HANDLERS
+// ============================================================
+function onAnswerClick(optIdx) {
+  if (G.answerLocked) return;
+  const q = getQuestion(G.questionIndex);
+  if (!q) return;
+
+  G.answerLocked = true;
+  stopTimer();
+  G.lastSelectedOption = optIdx;
+
+  const isCorrect = optIdx === q.correcta;
+
+  if (isCorrect) {
+    highlightSelectedOption(optIdx, q.correcta, true);
+    const groupIdx = G.isStealRound ? G.stealingGroup : G.currentGroup;
+    handleCorrectAnswer(groupIdx);
+  } else {
+    highlightSelectedOption(optIdx, q.correcta, false);
+    handleWrongAnswer();
+  }
+}
+
+function onStealSelectGroup(groupIdx) {
+  G.stealingGroup = groupIdx;
+  G.stealEligible = G.stealEligible.filter(g => g !== groupIdx);
+  G.isStealRound = true;
+
+  showSubView('question');
+  renderScoreboard();
+  renderQuestion();
+}
+
+// ============================================================
+// BUTTON BINDINGS
+// ============================================================
+
+dom.btnContinuar.addEventListener('click', () => {
+  advanceToNextQuestion();
+});
+
+dom.btnStealRobbery.addEventListener('click', () => {
+  showSubView('steal_select');
+  renderStealSelect();
+  renderScoreboard();
+});
+
+dom.btnSkipSteal.addEventListener('click', () => {
+  revealCorrectOption();
+  showExplanation('wrong_steal_exhausted');
+});
+
+dom.btnCancelSteal.addEventListener('click', () => {
+  showExplanation('wrong_steal_available');
+});
+
+dom.btnReiniciar.addEventListener('click', () => {
+  G.scores = [0, 0, 0, 0, 0];
+  G.questionIndex = 0;
+  G.isStealRound = false;
+  G.stealEligible = [];
+  G.stealingGroup = -1;
+  showScreen('start');
+  document.querySelectorAll('.confetti-piece').forEach(el => el.remove());
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderStartScreen();
+showScreen('start');
+
+// Click anywhere to init audio context on first interaction
+document.addEventListener('click', () => {
+  if (!audioCtx) getAudioCtx();
+}, { once: true });
+
+</script>
+</body>
+</html>
